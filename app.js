@@ -13,9 +13,16 @@ public上，这样所有类似 src="" 的引用路径全部不对了，就很麻
 给所有的路径重新定位到./public里面去，但是在公司里面开发的话一般有一个专门放图片的静态服务器，通过
 绝对路径去引用资源，就不会有这种尴尬的情况发生*/
 app.use(express.static('./public'));
-
+app.use(express.static('./uploads'));
 //首页
+
 app.get('/',router.showIndex);
 app.get('/:albumName',router.showAlbum);
+app.get('/up',router.showUp);
+app.post('/up',router.doPost);
+
+app.use((req,res)=>{
+    res.render("err");
+})
 
 app.listen(3000);
