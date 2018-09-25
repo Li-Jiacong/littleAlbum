@@ -92,7 +92,10 @@ exports.doPost = (req,res)=>{
                 res.send("fail to rename");
             }
         })
-        res.send("成功");
+        // res.send("成功");
+        res.render("succeed",{
+            albumName: fields.folder,
+        })
     });
  
     return;
