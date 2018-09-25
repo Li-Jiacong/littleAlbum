@@ -42,7 +42,7 @@
             <ul class="nav navbar-nav">
               <li><a href="/">全部相册 <span class="sr-only">(current)</span></a></li>
               <li><a href="/up"">继续上传</a></li>
-              <li><a href= "/"+<%= albumName %> >相册——<%= albumName %></a></li>
+              <li><a href= <%= albumName %> >相册——<%= albumName %></a></li>
             </ul>
           </div><!-- /.navbar-collapse -->
         </div><!-- /.container-fluid -->
@@ -55,7 +55,7 @@
             <a href="/" class="alert-link">点击返回首页</a>
         </div>
         <div class="alert alert-info" role="alert">
-            <a class="alert-link" href= "/"+<%= albumName %> >点击查看上传图片所对应文件夹</a>
+            <a class="alert-link" href= <%= albumName %> >点击查看上传图片所对应文件夹</a>
         </div>
         <div class="alert alert-info" role="alert">
             <a href="/up" class="alert-link">点击再次上传</a>

@@ -57,41 +57,83 @@ exports.showUp = (req,res,next)=>{
 exports.doPost = (req,res)=>{
     //用formidable实现图片的上传
     var form = new formidable.IncomingForm();
+
     //文件没有办法直接上传到选定的文件夹里。因为这个使用表单还没有提交，所以需要一个中转文件夹
     //这个中转文件夹就是tempUp,然后后续在提交表单后再把文件转移到指定文件夹，可以使用fs.rename
     form.uploadDir = path.normalize(__dirname + "/../tempUp");
+    form.multiples = true;
     form.parse(req, function(err, fields, files,next) {
         if(err){
             next();
             return;
         }
-        //获取图片大小并判断（我觉得es7的幂用两个**真方便）
-        let size = parseInt(files.image.size);
-        if(size >= 2**23){
-            res.send("上传的图片不能超过8MB");
-            //删除图片
-            fs.unlink(files.image.path,(err)=>{
+        console.log(files);
+        console.log(files.image.length);
+        console.log(fields);
+        if(files.image instanceof Array){
+            for(let i=0; i<files.image.length; i++){
+                let size = parseInt(files.image[i].size);
+                //获取图片大小并判断（我觉得es7的幂用两个**真方便）
+                if(size >= 2**23){
+                    
+                    res.send("上传的单张图片不能超过8MB");
+                    //删除图片
+                    fs.unlink(files.image[i].path,(err)=>{
+                        if(err){
+                            res.send('path/file.txt was deleted');
+                        }
+                    })
+                    return;
+                }
+    
+                // console.log(fields);
+                // console.log(files);
+                //为文件从tempUp转移到指定文件夹做准备
+                let ttt = sd.format(new Date(), 'YYYYMMDDHHmmss');//为每个文件生成一个跟日期对勾的名字
+                let ran = parseInt(Math.random() * 89999 + 10000);//防止短时间内多次提交，在日期后加上随机数
+                let extname = path.extname(files.image[i].name);
+                let oldPath = files.image[i].path;
+                let newPath = path.normalize(__dirname+"/../uploads/"+fields.folder+"/"+ttt+ran+extname)
+                // console.log(oldPath)
+                fs.rename(oldPath,newPath,err=>{
+                    if(err){
+                        res.send("fail to rename");
+                    }
+                })
+            }
+        }else{
+            let size = parseInt(files.image.size);
+            //获取图片大小并判断（我觉得es7的幂用两个**真方便）
+            if(size >= 2**23){
+                
+                res.send("上传的单张图片不能超过8MB");
+                //删除图片
+                fs.unlink(files.image.path,(err)=>{
+                    if(err){
+                        res.send('path/file.txt was deleted');
+                    }
+                })
+                return;
+            }
+
+            // console.log(fields);
+            // console.log(files);
+            //为文件从tempUp转移到指定文件夹做准备
+            let ttt = sd.format(new Date(), 'YYYYMMDDHHmmss');//为每个文件生成一个跟日期对勾的名字
+            let ran = parseInt(Math.random() * 89999 + 10000);//防止短时间内多次提交，在日期后加上随机数
+            let extname = path.extname(files.image.name);
+            let oldPath = files.image.path;
+            let newPath = path.normalize(__dirname+"/../uploads/"+fields.folder+"/"+ttt+ran+extname)
+            // console.log(oldPath)
+            fs.rename(oldPath,newPath,err=>{
                 if(err){
-                    res.send('path/file.txt was deleted');
+                    res.send("fail to rename");
                 }
             })
-            return;
         }
-
-        // console.log(fields);
-        // console.log(files);
-        //为文件从tempUp转移到指定文件夹做准备
-        let ttt = sd.format(new Date(), 'YYYYMMDDHHmmss');//为每个文件生成一个跟日期对勾的名字
-        let ran = parseInt(Math.random() * 89999 + 10000);//防止短时间内多次提交，在日期后加上随机数
-        let extname = path.extname(files.image.name);
-        let oldPath = files.image.path;
-        let newPath = path.normalize(__dirname+"/../uploads/"+fields.folder+"/"+ttt+ran+extname)
-        // console.log(oldPath)
-        fs.rename(oldPath,newPath,err=>{
-            if(err){
-                res.send("fail to rename");
-            }
-        })
+        
+        
+        
         // res.send("成功");
         res.render("succeed",{
             albumName: fields.folder,
